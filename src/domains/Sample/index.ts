@@ -14,9 +14,9 @@ import { type TacticTypeKey } from '../Combat/AI'
  *   最大能力値を決定せずに 3-2. へ進む
  * 
  * 3-1. 残りの能力値を以下のパターンで割り振る
- *   a. [0, 0, 1] (5)
- *   b. [0, 1, 0] (5)
- *   c. [1, 0, 0] (5)
+ *   a. [0.5, 0.5, 1] (6)
+ *   b. [0.5, 1, 0.5] (6)
+ *   c. [1, 0.5, 0.5] (6)
  *   d. [0, 1, 1] (6)
  *   e. [1, 0, 1] (6)
  *   f. [1, 1, 0] (6)
@@ -24,13 +24,13 @@ import { type TacticTypeKey } from '../Combat/AI'
  *   h. [2, 0, 1] (7)
  * 
  * 3-2. 魔戦士タイプの割り振りパターン (固定)
- *   a. [2, 0, 4, 0] (6)
+ *   a. [2, 0.5, 4, 0.5] (7)
  *   b. [2, 0, 4, 1] (7)
- *   c. [4, 0, 2, 0] (6)
+ *   c. [4, 0.5, 2, 0.5] (7)
  *   d. [4, 0, 2, 1] (7)
- *   e. [2, 0, 4, 0] (6)
+ *   e. [2, 0.5, 4, 0.5] (7)
  *   f. [2, 1, 4, 0] (7)
- *   g. [4, 0, 2, 0] (6)
+ *   g. [4, 0.5, 2, 0.5] (7)
  *   h. [4, 1, 2, 0] (7)
  * 
  * 4-1. HT (生命力) を +1 する/しない (男性イメージ)
@@ -42,9 +42,9 @@ import { type TacticTypeKey } from '../Combat/AI'
 const DEFAULT_SIZE = 64 // シード値の範囲
 
 const TABLE_1: Point[][] = [
-  [0, 0, 1],
-  [0, 1, 0],
-  [1, 0, 0],
+  [0.5, 0.5, 1],
+  [0.5, 1, 0.5],
+  [1, 0.5, 0.5],
   [0, 1, 1],
   [1, 0, 1],
   [1, 1, 0],
@@ -53,14 +53,21 @@ const TABLE_1: Point[][] = [
 ]
 
 const TABLE_2: Point[][] = [
-  [2, 0, 4, 0],
+  [2, 0.5, 4, 0.5],
   [2, 0, 4, 1],
-  [4, 0, 2, 0],
+  [4, 0.5, 2, 0.5],
   [4, 0, 2, 1],
-  [2, 0, 4, 0],
+  [2, 0.5, 4, 0.5],
   [2, 1, 4, 0],
-  [4, 0, 2, 0],
+  [4, 0.5, 2, 0.5],
   [4, 1, 2, 0]
+]
+
+const SKILL_TABLE: ParameterKey[][] = [
+  ['怪力', '格闘', '運動', '鍛錬', '修養', '礼法', '探索', '尋問', '歌唱'],
+  ['運動', '探索', '細工', '鍛錬', '早業', '隠密', '軽業', '柔術', '演奏'],
+  ['修養', '礼法', '交渉', '鍛錬', '尋問', '演技', '鑑定', '治癒', '歴史'],
+  ['怪力', '格闘', '運動', '鍛錬', '修養', '礼法', '探索', '演技', '舞踏']
 ]
 
 function makeAbilityValues(p: number, c: number): Point[] {
@@ -195,7 +202,11 @@ class Sample extends Character {
 
     // 主技能を配列に追加
     if (p === 0) skills.push('武術')
-    if (p === 1) skills.push('剣術')
+    if (p === 1 && this.getLevel('生命力') < 11) {
+      skills.push('弓術')
+    } else if ( p === 1) {
+      skills.push('剣術')
+    }
     if (p === 2) {
       const selected1 = spells.find((_, i) => i === (s + 1) % 3)!
       const selected2 = spells.find((_, i) => i === (s + 2) % 3)!
@@ -211,43 +222,41 @@ class Sample extends Character {
 
     // 主技能を2周 step
     for (let i = 0; i < 2; i++) {
-      skills.forEach(skill => this.step(skill, total))
-    }
-
-    // 「運動」が奇数なら, DX (敏捷力) または 「運動」の step を試みる
-    if (this.getLevel('運動') % 2) {
-      if (this.get('敏捷力') < 2) {
-        // DX (敏捷力) への消費が 2 未満なら, DX を step
-        this.step('敏捷力', total)
-      } else {
-        // そうでなければ, 「運動」を step
-        this.step('運動', total)
-      }
-    }
-    // 「怪力」が奇数なら, ST (筋力) または 「怪力」の step を試みる
-    if (this.getLevel('怪力') % 2) {
-      if (this.get('筋力') < 2) {
-        // ST (筋力) への消費が 2 未満なら, ST を step
-        this.step('筋力', total)
-      } else {
-        // そうでなければ, 「怪力」を step
-        this.step('怪力', total)
-      }
+      this.step(skills[0], total)
     }
 
     // 副技能を追加
-    skills.push('鍛錬')
-    if (p === 1) skills.push('運動')
-    if (p === 0) skills.push('怪力')
+    skills.push(...SKILL_TABLE[p])
 
-    // 主技能+副技能の修得ループ
-    let count = 0 // 安全装置
+    /**
+     * 主技能+副技能の修得ループ
+     * 
+     * 周回: 合計/能/主/2次/3次 (数)
+     * 1周: 10: 8 / 2 / 0 / 0 (0)
+     * 2周: 12: 8 / 2 / 1 / 1 (2)
+     * 3周: 16: 8 / 4 / 2 / 2 (4)
+     * 4周: 24: 8 / 8 / 4 / 4 (8)
+     * 5周: 40: 8 / 16 / 8 / 8 (8)
+     * 
+     */
+    let count = 0
     while (this.total < total && count < 10) {
-      skills.forEach(skill => this.step(skill, total))
-
-      // 2周ループしてもCPの余りが生じた場合
-      if (count > 1) {
-        (['鍛錬', '運動', '怪力'] as ParameterKey[]).forEach(skill => this.step(skill, total))
+      // 主技能
+      this.step(skills[0], total)
+      // 2次技能
+      this.step(skills[1], total)
+      // 3次技能 (1CPないし技能値12が上限)
+      skills.slice(1, 2 ** count).forEach(skill => {
+        if (this.get(skill) === 0
+          || (this.get(skill) < 1 && this.getLevel(skill) < 12)
+          || (count > 4 && this.get(skill) < 1 && this.getLevel(skill) < 12)
+          || (count > 6 && this.get(skill) < 2 && this.getLevel(skill) < 13)) {
+          this.step(skill, total)
+        }
+      })
+      // 8週目以降もCPの余りが生じた場合
+      if (count > 8) {
+        this.step(['言語', '技術', '知識', '言語'][p] as ParameterKey, total)
       }
       count++
     }
@@ -267,6 +276,15 @@ class Sample extends Character {
     // 筋力を取得
     const st = this.getLevel('筋力')
 
+    // 弓使いの場合
+    const archerSkill = this.get('弓術')
+    if (archerSkill > 0) {
+      this.weapon = '長弓'
+      this.shield = '装備無し'
+      this.armor = st <= 10 ? '革服' : '革鎧'
+      return
+    }
+
     // 筋力とCP総計に応じた武器一覧
     const weapons = [
       ['小剣', '棍棒', '長杖'],
@@ -276,24 +294,25 @@ class Sample extends Character {
     ]
 
     // 武器をセット
-    if (st <= 10) this.weapon = weapons[0][s % weapons[0].length] as WeaponKey
-    if (st >= 11) this.weapon = weapons[1][s % weapons[1].length] as WeaponKey
-    if (st >= 13 && total < 12) this.weapon = weapons[2][s % weapons[2].length] as WeaponKey
-    if (st >= 13 && total >= 12) this.weapon = weapons[3][s % weapons[3].length] as WeaponKey
+    if (st < 10) this.weapon = weapons[0][s % weapons[0].length] as WeaponKey
+    if (st >= 10) this.weapon = weapons[1][s % weapons[1].length] as WeaponKey
+    if (st >= 12 && total < 12) this.weapon = weapons[2][s % weapons[2].length] as WeaponKey
+    if (st >= 12 && total >= 12) this.weapon = weapons[3][s % weapons[3].length] as WeaponKey
 
     // 盾をセット
     if (!this.weapon.needsTwoHanded) {
-      if (st >= 13 && Math.floor(s / 6) % 2 === 0 && total >= 12) this.shield = '大盾'
+      if (st >= 12 && Math.floor(s / 6) % 2 === 0 && total >= 12) this.shield = '大盾'
       else this.shield = '小盾'
     } else {
       this.shield = '装備無し'
     }
 
     // 服・鎧をセット
-    if (st <= 10) this.armor = '革服'
-    if (st === 11 || st > 11 && total < 12) this.armor = '革鎧'
-    if (st >= 12 && total >= 12) this.armor = 'チェインメイル'
-    if (st >= 13 && total >= 16) this.armor = 'プレイトメイル' 
+    if (st < 9) this.armor = '服'
+    if (st === 9) this.armor = '革服'
+    if (st === 10 || (st > 10 && total < 12)) this.armor = '革鎧'
+    if (st >= 11 && total >= 12) this.armor = 'チェインメイル'
+    if (st >= 12 && total >= 16) this.armor = 'プレイトメイル' 
   }
 
   // 自動行動タイプを取得

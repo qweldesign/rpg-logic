@@ -2,7 +2,7 @@
 
 // 武器のキー
 export const WEAPON_KEYS = [
-  '装備無し', '短剣', '小剣', '長剣', '大剣', '棍棒', '戦棍', '戦斧', '長杖', '長槍', '鉾槍'
+  '装備無し', '短剣', '小剣', '長剣', '大剣', '棍棒', '戦棍', '戦斧', '長杖', '長槍', '鉾槍', '短弓', '長弓'
 ] as const
 
 export type WeaponKey = typeof WEAPON_KEYS[number]
@@ -14,6 +14,7 @@ export type Weapon = {
   needsTwoHanded: boolean // 両手が必要か
   needsReady: boolean // 準備が必要か
   requiredST?: number // 必要筋力
+  isMissile?: boolean // 射撃武器か
   gold: number // 金額
 }
 
@@ -21,14 +22,16 @@ export const WEAPONS: Record<WeaponKey, Weapon> = {
   '装備無し': { dmgBase: 2, dmgType: 0, needsTwoHanded: false, needsReady: false, gold: 0 },
   '短剣': { dmgBase: 2, dmgType: 1, needsTwoHanded: false, needsReady: false, gold: 10 },
   '小剣': { dmgBase: 2, dmgType: 2, needsTwoHanded: false, needsReady: false, gold: 20 },
-  '長剣': { dmgBase: 3, dmgType: 1, needsTwoHanded: false, needsReady: false, requiredST: 11, gold: 40 },
-  '大剣': { dmgBase: 4, dmgType: 1, needsTwoHanded: true, needsReady: false, requiredST: 13, gold: 80 },
+  '長剣': { dmgBase: 3, dmgType: 1, needsTwoHanded: false, needsReady: false, requiredST: 10, gold: 40 },
+  '大剣': { dmgBase: 4, dmgType: 1, needsTwoHanded: true, needsReady: false, requiredST: 12, gold: 80 },
   '棍棒': { dmgBase: 5, dmgType: 0, needsTwoHanded: false, needsReady: true, gold: 10 },
-  '戦棍': { dmgBase: 6, dmgType: 0, needsTwoHanded: false, needsReady: true, requiredST: 11, gold: 20 },
-  '戦斧': { dmgBase: 5, dmgType: 1, needsTwoHanded: false, needsReady: true, requiredST: 13, gold: 40 },
+  '戦棍': { dmgBase: 6, dmgType: 0, needsTwoHanded: false, needsReady: true, requiredST: 10, gold: 20 },
+  '戦斧': { dmgBase: 5, dmgType: 1, needsTwoHanded: false, needsReady: true, requiredST: 12, gold: 40 },
   '長杖': { dmgBase: 4, dmgType: 0, needsTwoHanded: true, needsReady: false, gold: 10 },
-  '長槍': { dmgBase: 3, dmgType: 2, needsTwoHanded: true, needsReady: false, requiredST: 11, gold: 20 },
-  '鉾槍': { dmgBase: 7, dmgType: 1, needsTwoHanded: true, needsReady: true, requiredST: 13, gold: 40 }
+  '長槍': { dmgBase: 3, dmgType: 2, needsTwoHanded: true, needsReady: false, requiredST: 10, gold: 20 },
+  '鉾槍': { dmgBase: 7, dmgType: 1, needsTwoHanded: true, needsReady: true, requiredST: 12, gold: 40 },
+  '短弓': { dmgBase: 2, dmgType: 2, needsTwoHanded: true, needsReady: true, isMissile: true, gold: 10 },
+  '長弓': { dmgBase: 3, dmgType: 2, needsTwoHanded: true, needsReady: true, isMissile: true, gold: 20 }
 } as const
 
 // ダメージの定義
@@ -41,19 +44,18 @@ export type Dmg = {
 
 // ダメージステップ
 const DMG_STEP: Omit<Dmg, 'dmgType'>[] = [
-  { name: '1d-2', dmgDice: 1, dmgMod: -2 }, // 0
-  { name: '1d-1', dmgDice: 1, dmgMod: -1 }, // 1
-  { name: '1d', dmgDice: 1, dmgMod: 0 }, // 2
-  { name: '1d+1', dmgDice: 1, dmgMod: 1 }, // 3
-  { name: '1d+2', dmgDice: 1, dmgMod: 2 }, // 4
-  { name: '2d-1', dmgDice: 2, dmgMod: -1 }, // 5
-  { name: '2d', dmgDice: 2, dmgMod: 0 }, // 6
-  { name: '2d+1', dmgDice: 2, dmgMod: 1 }, // 7
-  { name: '2d+2', dmgDice: 2, dmgMod: 2 }, // 8
-  { name: '3d-1', dmgDice: 3, dmgMod: -1 }, // 9
-  { name: '3d', dmgDice: 3, dmgMod: 0 }, // 10
-  { name: '3d+1', dmgDice: 3, dmgMod: 1 }, // 11
-  { name: '3d+2', dmgDice: 3, dmgMod: 2 } // 12
+  { name: '1d-1', dmgDice: 1, dmgMod: -1 }, // 0
+  { name: '1d', dmgDice: 1, dmgMod: 0 }, // 1
+  { name: '1d+1', dmgDice: 1, dmgMod: 1 }, // 2
+  { name: '1d+2', dmgDice: 1, dmgMod: 2 }, // 3
+  { name: '2d-1', dmgDice: 2, dmgMod: -1 }, // 4
+  { name: '2d', dmgDice: 2, dmgMod: 0 }, // 5
+  { name: '2d+1', dmgDice: 2, dmgMod: 1 }, // 6
+  { name: '2d+2', dmgDice: 2, dmgMod: 2 }, // 7
+  { name: '3d-1', dmgDice: 3, dmgMod: -1 }, // 8
+  { name: '3d', dmgDice: 3, dmgMod: 0 }, // 9
+  { name: '3d+1', dmgDice: 3, dmgMod: 1 }, // 10
+  { name: '3d+2', dmgDice: 3, dmgMod: 2 } // 11
 ] as const
 
 // 攻撃型
@@ -76,7 +78,7 @@ export type Shield = {
 export const SHIELDS: Record<ShieldKey, Shield> = {
   '装備無し': { size: 0, gold: 0 },
   '小盾': { size: 1, gold: 10 },
-  '大盾': { size: 2, requiredST: 13, gold: 40 }
+  '大盾': { size: 2, requiredST: 12, gold: 40 }
 } as const
 
 // 服・鎧のキー
@@ -96,10 +98,10 @@ export type Armor = {
 
 export const ARMORS: Record<ArmorKey, Armor> = {
   '服': { dr: 1, isChain: true, gold: 0 },
-  '革服': { dr: 1, isChain: false, gold: 20 },
-  '革鎧': { dr: 2, isChain: false, requiredST: 11, gold: 40 },
-  'チェインメイル': { dr: 3, isChain: true, requiredST: 12, gold: 80 },
-  'プレイトメイル': { dr: 4, isChain: false, requiredST: 13, gold: 160 }
+  '革服': { dr: 1, isChain: false, requiredST: 9, gold: 20 },
+  '革鎧': { dr: 2, isChain: false, requiredST: 10, gold: 40 },
+  'チェインメイル': { dr: 3, isChain: true, requiredST: 11, gold: 80 },
+  'プレイトメイル': { dr: 4, isChain: false, requiredST: 12, gold: 160 }
 } as const
 
 // 装備の管理を司るクラス
