@@ -13,6 +13,8 @@ export const PARAMETER_KEYS = [
 
 export type ParameterKey = typeof PARAMETER_KEYS[number]
 
+export const MAIN_SKILL_KEYS: ParameterKey[] = ['武術', '剣術', '青の魔法', '赤の魔法', '緑の魔法']
+
 // パラメータの定義
 export type Parameter = {
   name: ParameterKey

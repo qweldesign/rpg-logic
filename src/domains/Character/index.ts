@@ -1,9 +1,9 @@
 // src/domains/Character/index.ts
 
-import { type Point, type ParameterKey, type Parameter, Parameters } from './Parameters'
+import { type Point, type ParameterKey, MAIN_SKILL_KEYS, type Parameter, Parameters } from './Parameters'
 import { WEAPON_KEYS, type WeaponKey, type Weapon, WEAPONS, type Dmg, SHIELD_KEYS, type ShieldKey, type Shield, SHIELDS, ARMOR_KEYS, type ArmorKey, type Armor, ARMORS, Equipments } from './Equipments'
 
-export { type Point, type ParameterKey, type Parameter, Parameters, WEAPON_KEYS, type WeaponKey, type Weapon, WEAPONS, type Dmg, SHIELD_KEYS, type ShieldKey, type Shield, SHIELDS, ARMOR_KEYS, type ArmorKey, type Armor, ARMORS, Equipments }
+export { type Point, type ParameterKey, MAIN_SKILL_KEYS, type Parameter, Parameters, WEAPON_KEYS, type WeaponKey, type Weapon, WEAPONS, type Dmg, SHIELD_KEYS, type ShieldKey, type Shield, SHIELDS, ARMOR_KEYS, type ArmorKey, type Armor, ARMORS, Equipments }
 
 // キャラクタ・モデル
 export type CharacterModel = {
