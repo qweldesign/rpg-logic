@@ -41,28 +41,28 @@ src/
 │   └── markdown.ts
 │
 ├── domains/           # ドメイン層：ゲームのルール・ロジック
-│   ├── Character
+│   ├── Character/
 │   │   ├── index.ts         # キャラクタ管理
 │   │   ├── Parameters.ts    # パラメータ管理
 │   │   └── Equipments.ts    # 装備管理
 │   │
-│   └── Combat
+│   └── Combat/
 │       ├── index.ts         # 戦闘状態を管理
 │       │
-│       └── Action
+│       └── Action/
 │           └── roll.ts      # ダイスによる判定
 │
 └── parts/             # UI層：Reactによる画面・コンポーネント
     ├── index.tsx            # 初期画面 (タイトル/ナビゲーション)
     │
-    ├── Docs
+    ├── Docs/
     │   └── index.tsx        # ドキュメント画面
     │
-    ├── List
+    ├── List/
     │   ├── index.tsx        # キャラクタ一覧
     │   └── Detail.tsx       # キャラクタ詳細
     │
-    └── Setup
+    └── Setup/
         └── index.tsx        # 編成画面
 
 ```
