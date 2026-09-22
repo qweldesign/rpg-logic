@@ -17,5 +17,8 @@ export const router = createBrowserRouter(
         { path: ':docsId', element: <Docs />, loader: docsLoader }
       ]}
     ]
-  }]
+  }],
+  {
+    basename: '/demo/00/',
+  }
 )
