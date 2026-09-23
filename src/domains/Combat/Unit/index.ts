@@ -1,6 +1,7 @@
 // src/domains/Combat/Unit/index.ts
 
 import { Equipments } from '../../Character'
+import { CombatHealth as Health } from './Health'
 
 const combatIds: number[] = [1, 2, 3, 4, 5, 6, 7, 8] as const
 
@@ -35,12 +36,14 @@ export class CombatUnit {
   public name: string
   public side: Side
   public position: Position
+  public health: Health
 
   constructor(model: CombatUnitModel, combatId: CombatId) {
-    const { name } = model
+    const { name, maxHp } = model
     this.combatId = combatId
     this.name = name
     this.side = combatId <= 4 ? 'player' : 'enemy'
     this.position = 'back'
+    this.health = new Health(maxHp)
   }
 }
