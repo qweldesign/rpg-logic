@@ -21,7 +21,19 @@ function Combat() {
     const players = playerSetup(saveData)
     const seed = Math.ceil(players.seed + Math.random() * 15) % 16
     const enemies = enemySetup(saveData, seed)
-    return new State(players.models.concat(enemies.models))
+    return new State(players.models.concat(enemies.models), playLog)
+  }
+
+  // State 経由で ActionStore に渡すログ再生関数
+  const playLog = async (): Promise<void> => {
+    if (!stateRef.current) return
+    // ログを再生 (未実装)
+    return new Promise(resolve => {
+      if (!stateRef.current) return
+      stateRef.current.nextTurn()
+      setTurnIndex(stateRef.current.turnIndex)
+      resolve()
+    })
   }
 
   // 開幕
@@ -56,7 +68,9 @@ function Combat() {
             </div>
             <div id="action" className="relative order-3 lg:order-2 w-lg h-48 p-3 bg-white/15 lg:bg-white/30">
               <h3 className="m-0 border-0 font-serif text-sm">Action</h3>
-              <Action />
+              {stateRef.current.action && (
+                <Action store={stateRef.current.action} />
+              )}
             </div>
             <div id="log" className="relative order-4 w-lg h-96 bg-white/30 p-3 lg:bg-white/15">
               <h3 className="m-0 border-0 font-serif text-sm">Log</h3>
