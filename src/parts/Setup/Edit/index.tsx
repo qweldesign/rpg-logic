@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import ParametersSetting from './ParametersSetting'
 import EquipmentsSetting from './EquipmentsSetting'
 import ProfileSetting from './ProfileSetting'
-import { type ParameterKey, Parameters, type WeaponKey, type ShieldKey, type ArmorKey, Equipments, type CharacterModel as Model } from '../../../domains/Character'
+import { type ParameterKey, Parameters, type WeaponKey, type ShieldKey, type ArmorKey, Equipments, type CharacterModel as Model, Character } from '../../../domains/Character'
 import { SaveData } from '../../../domains/SaveData'
 
 export type State = {
@@ -142,6 +142,29 @@ function Edit() {
     return gold
   }
 
+  // 確認
+  const confirm = () => {
+    // 確認用モデルの作成
+    const { name, params, equips } = state
+    const confirmModel: Model = {
+      id: Number(uid),
+      name,
+      points: params.model,
+      equipments: equips.model
+    }
+    
+    // キャラクターデータの一時保存 (SessionStorage を使用)
+    const unit = new Character(confirmModel)
+    unit.save(true)
+
+    // 確認画面へ進む
+    if (!isNew) {
+      navigate(`/setup/confirm/${uid}`)
+    } else {
+      navigate(`/setup/confirm/`)
+    }
+  }
+
   // 作成 (編集) 中断
   const back = () => navigate(keys.size ? '/setup/' : '/')
 
@@ -165,7 +188,7 @@ function Edit() {
               <br />この内容でよろしければ、確認へ進んでください。
             </p>
           )}
-          <button className="w-48 h-12">確認する</button>
+          <button className="w-48 h-12" onClick={confirm}>確認する</button>
           <button className="w-48 h-12" onClick={back}>{isNew ? '作成' : '編集'}中断</button>
         </section>
       </div>
