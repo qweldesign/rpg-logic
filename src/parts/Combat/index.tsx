@@ -1,6 +1,6 @@
 // src/parts/Combat/index.tsx
 
-import { useRef, useState, useEffect } from 'react'
+import { type ReactNode, useRef, useState, useEffect } from 'react'
 import Formation from './Formation'
 import Action from './Action'
 import Summary from './Summary'
@@ -10,11 +10,20 @@ import { Combat as State } from '../../domains/Combat'
 import { playerSetup } from '../../domains/Combat/Formation/player'
 import { enemySetup } from '../../domains/Combat/Formation/enemy'
 
+type QueueItem = {
+  node: ReactNode
+  resolve?: () => void
+}
+
 function Combat() {
   // ターン管理
   const stateRef = useRef<State | null>(null)
-  const [turnIndex, setTurnIndex] = useState(0)
-  
+
+  // ログ管理
+  const timelineRef = useRef<HTMLDivElement | null>(null)
+  const [queue, setQueue] = useState<QueueItem[]>([]) // 未表示 (待機中)
+  const [messages, setMessages] = useState<ReactNode[]>([]) // 表示済み
+
   // 敵味方ユニットモデルをセットし, State を初期化する関数
   const setup = () => {
     const saveData = new SaveData()
@@ -24,16 +33,26 @@ function Combat() {
     return new State(players.models.concat(enemies.models), playLog)
   }
 
+  // ログを積む関数
+  const enqueueLog = (nodes: ReactNode[]): Promise<void> => {
+    return new Promise(resolve => {
+      setQueue(prev => {
+        const items: QueueItem[] = nodes.map((node, i) => ({
+          node,
+          resolve: i === nodes.length - 1 ? resolve : undefined
+        }))
+        return [...prev, ...items]
+      })
+    })
+  }
+
   // State 経由で ActionStore に渡すログ再生関数
   const playLog = async (): Promise<void> => {
     if (!stateRef.current) return
-    // ログを再生 (未実装)
-    return new Promise(resolve => {
-      if (!stateRef.current) return
-      stateRef.current.nextTurn()
-      setTurnIndex(stateRef.current.turnIndex)
-      resolve()
-    })
+    // ログの末尾を再生
+    const log = stateRef.current.logs[0]
+    const messages = log.messages[log.messages.length - 1]
+    await enqueueLog(messages)
   }
 
   // 開幕
@@ -41,15 +60,39 @@ function Combat() {
     if (!stateRef.current) {
       stateRef.current = setup()
       stateRef.current.nextTurn()
-      setTurnIndex(stateRef.current.turnIndex)
     }
   }, [])
-  
-  // ターン毎にデバッグ
+
+  // ログ再生
   useEffect(() => {
-    if (!stateRef.current) return
-    stateRef.current.debug()
-  }, [turnIndex])
+    // queueに新しいメッセージが無ければ, 処理をスキップ
+    if (queue.length === 0) return
+
+    // スクロールアニメーションクラスを付与
+    if (messages.length >= 10) {
+      timelineRef.current?.classList.add('is-scrolling')
+    }
+
+    // ログを再生 (queue → messages に流す)
+    const timer = setTimeout(() => {
+      const [next, ...rest] = queue
+      setMessages(prev => [...prev, next.node].slice(-10)) // 末尾10件のみ表示
+      setQueue(rest)
+      // 最後の要素で resolve
+      if (next.resolve) {
+        next.resolve()
+      }
+      // スクロールアニメーションクラスを奪取
+      if (messages.length >= 10) {
+        timelineRef.current?.classList.remove('is-scrolling')
+        // 除去を即座にレイアウトへ反映させる (再フローの強制)
+        // トランジションが正しく開始させるための処置
+        void timelineRef.current?.offsetHeight
+      }
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [queue])
 
   return (
     <div className="p-6">
@@ -74,7 +117,7 @@ function Combat() {
             </div>
             <div id="log" className="relative order-4 w-lg h-96 bg-white/30 p-3 lg:bg-white/15">
               <h3 className="m-0 border-0 font-serif text-sm">Log</h3>
-              <Timeline />
+              <Timeline ref={timelineRef} messages={messages} />
             </div>
           </div> 
         )}

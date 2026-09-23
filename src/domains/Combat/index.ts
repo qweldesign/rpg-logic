@@ -3,6 +3,7 @@
 import { type CombatUnitModel as UnitModel, CombatUnit as Unit } from './Unit'
 import { CombatFormation as Formation } from './Formation'
 import { CombatAction as Action } from './Action'
+import { CombatLog as Log } from './Log'
 
 // 全ての情報を集約・管理するクラス
 export class Combat {
@@ -11,6 +12,7 @@ export class Combat {
   public units: Unit[]
   public formation: Formation | null
   public action: Action | null
+  public logs: Log[]
   public playLog: () => Promise<void> // Combat 本体から受け取り, ActionStore から呼び出す
 
   constructor(models: UnitModel[], playLog: () => Promise<void>) {
@@ -21,6 +23,7 @@ export class Combat {
     })
     this.formation = null
     this.action = null
+    this.logs = []
     this.playLog = playLog
   }
 
@@ -32,6 +35,7 @@ export class Combat {
   async nextTurn() {
     this.advanceTurn()
     await this.startTurn()
+    await this.waitForCommand()
   }
 
   // turnIndex / round を進める
@@ -44,10 +48,20 @@ export class Combat {
   }
 
   // 新しいターンの開始処理
-  // formation, action 初期化
+  // formation, log, action 初期化
   private async startTurn(): Promise<void> {
     this.formation = new Formation(this.actor, this.units)
+    this.logs.unshift(new Log(this.actor))
+    await this.playLog()
     this.action = new Action(this)
+  }
+
+  // コマンド入力待機 → 状態更新 → 次のターンへ再帰
+  private async waitForCommand(): Promise<void> {
+    await this.action!.promise.then(() => {
+      this.debug()
+      this.nextTurn()
+    })
   }
 
   debug() {
