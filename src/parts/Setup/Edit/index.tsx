@@ -3,7 +3,8 @@
 import { type Reducer, useReducer, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ParametersSetting from './ParametersSetting'
-import { type ParameterKey, Parameters, Equipments, type CharacterModel as Model } from '../../../domains/Character'
+import EquipmentsSetting from './EquipmentsSetting'
+import { type ParameterKey, Parameters, type WeaponKey, type ShieldKey, type ArmorKey, Equipments, type CharacterModel as Model } from '../../../domains/Character'
 import { SaveData } from '../../../domains/SaveData'
 
 export type State = {
@@ -81,6 +82,23 @@ function Edit() {
         }
       }
 
+      case 'SET_EQUIP': {
+        const slot = action.payload.slot
+        const key = action.payload.name
+        const [weapon, shield, armor] = state.equips.model
+        const nextModel: [WeaponKey, ShieldKey, ArmorKey] = [
+          slot === 'weapon' ? key as WeaponKey : weapon,
+          slot === 'shield' ? key as ShieldKey : shield,
+          slot === 'armor' ? key as ArmorKey : armor
+        ]
+        const nextEquips = new Equipments(...nextModel)
+
+        return {
+          ...state,
+          equips: nextEquips
+        }
+      }
+
       default: {
         return state
       }
@@ -107,6 +125,15 @@ function Edit() {
     return points
   }
 
+  // 所持金を計算 isMax: true で持ち金を返す
+  const calcGold = (state: State, isMax: boolean = false): number => {
+    let gold = state.gold
+    // 現在と元の装備の差分 (購入分 - 売却分) を算出
+    if (!isMax) gold -= state.equips.gold
+    // 算出結果を返す
+    return gold
+  }
+
   // 作成 (編集) 中断
   const back = () => navigate(keys.size ? '/setup/' : '/')
 
@@ -120,6 +147,7 @@ function Edit() {
       <div className="max-w-[48em] mx-auto">
         <h3>キャラクター{isNew ? '作成' : '編集'}</h3>
         <ParametersSetting isNew={isNew} state={state} dispatch={dispatch} calcPoints={calcPoints} />
+        <EquipmentsSetting isNew={isNew} state={state} dispatch={dispatch} calcGold={calcGold} />
         <section className="my-12 text-center">
           {isNew && (
             <p className="text-center">お疲れ様でした。もうすぐキャラクター作成は完了です。
