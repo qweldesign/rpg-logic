@@ -2,6 +2,7 @@
 
 import { Equipments } from '../../Character'
 import { CombatHealth as Health } from './Health'
+import { type CombatLog as Log } from '../Log'
 
 const combatIds: number[] = [1, 2, 3, 4, 5, 6, 7, 8] as const
 
@@ -37,6 +38,7 @@ export class CombatUnit {
   public side: Side
   public position: Position
   public health: Health
+  public history: Log | null // 直近の自ターンの行動ログ (Summary表示用)
 
   constructor(model: CombatUnitModel, combatId: CombatId) {
     const { name, maxHp } = model
@@ -45,5 +47,6 @@ export class CombatUnit {
     this.side = combatId <= 4 ? 'player' : 'enemy'
     this.position = 'back'
     this.health = new Health(maxHp)
+    this.history = null
   }
 }
