@@ -17,7 +17,6 @@ function Action({ store }: { store: Store }) {
   const execute = async () => {
     const request = { key: actionKey, options: actionOptions } as ActionRequest
     await store.execute(request)
-    reset()
   }
 
   // execute後, 変数を初期状態に戻す
@@ -28,9 +27,14 @@ function Action({ store }: { store: Store }) {
     setIsExecuted(false)
   }
 
+  // ロック状態の切り替わりを検知し, パレットの表示状態を更新
   useEffect(() => {
-    reset()
-  }, [])
+    if (store.unlocked) {
+      reset()
+    } else {
+      setActionPalette('hidden')
+    }
+  }, [store.unlocked])
 
   // isExecuted が true に変わるのを検知して実行
   useEffect(() => {

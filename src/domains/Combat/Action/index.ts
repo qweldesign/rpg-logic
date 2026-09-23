@@ -12,6 +12,7 @@ export { ACTION_KEYS, ACTION_LABELS, POSITION_LABELS, type ActionKey, type Actio
 export class CombatAction {
   private state: State
   public round: number
+  public unlocked: boolean // コマンドパレットのロック状態 → Actions にて検知
   public promise: Promise<void>
   private resolve!: () => void
   private readonly availabilityChecker: Availability
@@ -20,6 +21,7 @@ export class CombatAction {
   constructor(state: State) {
     this.state = state
     this.round = state.round
+    this.unlocked = true // コマンドパレットをアンロック
     this.availabilityChecker = new Availability(state)
     this.effects = new Effects(state)
 
@@ -48,6 +50,9 @@ export class CombatAction {
   // ActionRequest のプロパティ (key, options) を引数に取って処理を進め,
   // ActionResult の配列を Log に渡し, 再生して次のターンへ移る
   async execute (action: ActionRequest) {
+    // コマンドパレットをロック (アンロックはコンストラクタで行われる)
+    this.unlocked = false
+
     // 行動実行
     switch (action.key) {
       case 'move':
@@ -58,8 +63,12 @@ export class CombatAction {
         this.effects.wait()
     }
 
+    // ログを更新
+    const log = this.state.logs[0]
+    log.receiveResults(action)
+
     // 行動終了
-    await this.state.playLog() // ログの再生完了を待つ (未実装)
+    await this.state.playLog() // ログの再生完了を待つ
     this.resolve()
   }
 }

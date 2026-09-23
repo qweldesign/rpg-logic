@@ -253,6 +253,22 @@
     @apply w-48;
   }
 
+  .timeline {
+    @apply transition-none duration-300;
+  }
+
+  .timeline.is-scrolling {
+    @apply -mt-8 transition-all;
+  }
+
+  .timeline > p {
+    @apply my-3 text-justify;
+  }
+
+  .timeline > p:not(:has(span)) {
+    @apply px-3
+  }
+
   .cover {
     @apply fixed inset-0 -z-10 w-1/1 h-1/1;
   }
