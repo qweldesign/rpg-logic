@@ -4,6 +4,7 @@ import { type Reducer, useReducer, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ParametersSetting from './ParametersSetting'
 import EquipmentsSetting from './EquipmentsSetting'
+import ProfileSetting from './ProfileSetting'
 import { type ParameterKey, Parameters, type WeaponKey, type ShieldKey, type ArmorKey, Equipments, type CharacterModel as Model } from '../../../domains/Character'
 import { SaveData } from '../../../domains/SaveData'
 
@@ -98,6 +99,13 @@ function Edit() {
           equips: nextEquips
         }
       }
+      
+      case 'SET_NAME': {
+        return {
+          ...state,
+          name: action.payload.name
+        }
+      }
 
       default: {
         return state
@@ -148,6 +156,9 @@ function Edit() {
         <h3>キャラクター{isNew ? '作成' : '編集'}</h3>
         <ParametersSetting isNew={isNew} state={state} dispatch={dispatch} calcPoints={calcPoints} />
         <EquipmentsSetting isNew={isNew} state={state} dispatch={dispatch} calcGold={calcGold} />
+        {isNew && (
+          <ProfileSetting state={state} dispatch={dispatch} />
+        )}
         <section className="my-12 text-center">
           {isNew && (
             <p className="text-center">お疲れ様でした。もうすぐキャラクター作成は完了です。
