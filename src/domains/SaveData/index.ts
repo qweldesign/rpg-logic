@@ -8,6 +8,7 @@
  * 　cp: PT共有のCP総計を管理 (撃破数に応じて伸び, PT共有とする)
  *   gold: PT共有の軍資金を管理
  *   formation: 出撃メンバ (編成) を配列で管理
+ *   seed: 初期メンバ生成時のシード値を保存
  * 
  * 2. savedata:index (モデルの保存)
  *   キャラクタ・モデルを各キーにて管理 (保存は class Character 側で定義)
@@ -40,6 +41,7 @@ export class SaveData {
     cp?: number
     gold?: number
     formation?: (number | null)[]
+    seed?: number
   }
 
   constructor() {
@@ -127,6 +129,17 @@ export class SaveData {
   // 出撃メンバを読み込み
   loadFormation() {
     return this.data.formation ?? DEFAULT_FORMATION
+  }
+  
+  // シード値を保存
+  saveSeed(seed: number) {
+    this.data = { ...this.data, seed }
+    this.save()
+  }
+
+  // シード値を読み込み
+  loadSeed() {
+    return this.data.seed || 0
   }
 
   // uid を指定してモデルを読み込み
