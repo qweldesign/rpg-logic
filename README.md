@@ -53,10 +53,24 @@ src/
 │   │   └── index.ts         # セーブデータ管理
 │   │
 │   └── Combat/
-│       ├── index.ts         # 戦闘状態を管理
+│       ├── index.ts         # 全ての戦闘状態を管理
+│       ├── Log.tsx          # ログを管理
 │       │
-│       └── Action/
-│           └── roll.ts      # ダイスによる判定
+│       ├── Action/
+│       │   ├── index.ts           # 行動を管理
+│       │   ├── type.ts            # 行動に関する型定義
+│       │   ├── Availability.ts    # 行動可否判定を管理
+│       │   ├── Effects.ts         # 行動実行 (状態変更) を管理
+│       │   └── roll.ts            # ダイスによる判定
+│       │
+│       ├── Formation/
+│       │   ├── index.ts           # 戦闘配置を管理
+│       │   ├── player.ts          # PC側の編成を管理
+│       │   └── enemy.ts           # NPC側の編成を管理
+│       │
+│       └── Unit/
+│           ├── index.ts           # 戦闘ユニットを管理
+│           └── Health.ts          # 負傷状態を管理
 │
 └── parts/             # UI層：Reactによる画面・コンポーネント
     ├── index.tsx            # 初期画面 (タイトル/ナビゲーション)
@@ -71,17 +85,24 @@ src/
     ├── Sample/
     │   └── index.tsx        # サンプル・キャラクタ閲覧
     │
-    └── Setup/
-        ├── index.tsx        # 編成画面
-        ├── Confirm.tsx      # キャラクタ作成・編集確認画面
-        ├── Formation.tsx    # 出撃メンバ選択画面
-        ├── Modal.tsx        # モーダルウィンドウ
-        │
-        └── Edit/
-            ├── index.tsx                # キャラクタ作成・編集画面
-            ├── ParametersSetting.tsx    # パラメータ編集
-            ├── EquipmentsSetting.tsx    # 装備編集
-            └── ProfileSetting.tsx       # プロフィール編集
+    ├── Setup/
+    │   ├── index.tsx        # 編成画面
+    │   ├── Confirm.tsx      # キャラクタ作成・編集確認画面
+    │   ├── Formation.tsx    # 出撃メンバ選択画面
+    │   ├── Modal.tsx        # モーダルウィンドウ
+    │   │
+    │   └── Edit/
+    │       ├── index.tsx                # キャラクタ作成・編集画面
+    │       ├── ParametersSetting.tsx    # パラメータ編集
+    │       ├── EquipmentsSetting.tsx    # 装備編集
+    │       └── ProfileSetting.tsx       # プロフィール編集
+    │
+    └── Combat/
+        ├── index.tsx        # 戦闘画面
+        ├── Action.tsx       # 行動入力
+        ├── Formation.tsx    # 戦闘配置
+        ├── Summary.tsx      # 戦闘情報
+        └── Timeline.tsx     # ログ出力
 
 ```
 
@@ -119,6 +140,21 @@ src/
 - [x] セーブデータのリセットと除名を実装
 - [x] 出撃メンバの選択を実装
 - [x] 初期メンバ生成時にシード値を保存
+
+### v0.3.0 ターンとログの実装
+
+- [x] 戦闘ユニットの管理を司るクラスを準備
+- [x] 戦闘画面の基盤を構築
+- [x] 戦闘配置を司るクラスとコンポーネントを実装
+- [x] 戦闘情報の表示を司るコンポーネントを実装
+- [x] ターンとログを実装
+  - [x] 行動の管理を司るクラスを実装
+  - [x] 行動可否判定を司るクラスを実装
+  - [x] 行動実行 (状態変更) を司るクラスを実装
+  - [x] 行動入力を司るコンポーネントを実装
+  - [x] ターンの実装
+  - [x] ログの実装
+- [x] 戦闘情報に行動履歴を表示
 
 ---
 
