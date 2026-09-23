@@ -12,6 +12,8 @@ export { ACTION_KEYS, ACTION_LABELS, POSITION_LABELS, type ActionKey, type Actio
 export class CombatAction {
   private state: State
   public round: number
+  public promise: Promise<void>
+  private resolve!: () => void
   private readonly availabilityChecker: Availability
   private readonly effects: Effects
 
@@ -20,6 +22,11 @@ export class CombatAction {
     this.round = state.round
     this.availabilityChecker = new Availability(state)
     this.effects = new Effects(state)
+
+    // ターン終了を Promise で State に伝え, 次のターンへ進む
+    this.promise = new Promise(resolve => {
+      this.resolve = resolve
+    })
   }
 
   get actor() {
@@ -50,5 +57,9 @@ export class CombatAction {
       default: // case 'wait':
         this.effects.wait()
     }
+
+    // 行動終了
+    await this.state.playLog() // ログの再生完了を待つ (未実装)
+    this.resolve()
   }
 }
