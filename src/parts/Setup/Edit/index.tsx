@@ -1,10 +1,11 @@
 // src/parts/Setup/Edit/index.tsx
 
-import { type Reducer, useReducer, useEffect } from 'react'
+import { type ReactNode, type Reducer, useState, useReducer, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ParametersSetting from './ParametersSetting'
 import EquipmentsSetting from './EquipmentsSetting'
 import ProfileSetting from './ProfileSetting'
+import Modal from '../Modal'
 import { type ParameterKey, Parameters, type WeaponKey, type ShieldKey, type ArmorKey, Equipments, type CharacterModel as Model, Character } from '../../../domains/Character'
 import { SaveData } from '../../../domains/SaveData'
 
@@ -116,6 +117,10 @@ function Edit() {
   // 状態管理 (設定内容)
   const [state, dispatch] = useReducer(reducer, initialState)
 
+  // 状態管理 (Modal に渡すパラメータ)
+  const [alertMessage, setAlertMessage] = useState<ReactNode>('Test Alert.')
+  const [alertOpen, setAlertOpen] = useState(false)
+
   // INIT
   const onInit = () => {
     // LocalStorage からキャラクターデータを取得
@@ -142,8 +147,34 @@ function Edit() {
     return gold
   }
 
+  // 名前が設定されているか判定
+  const checkName = (state: State): boolean => {
+    return state.name !== '未設定' && state.name !== '' 
+  }
+
   // 確認
   const confirm = () => {
+    // 新規作成時で points を使い切ってない場合のアラート
+    if (isNew && calcPoints(state)) {
+      const message = (
+        <p className="text-center">キャラクターポイントを使い切っていません。
+          <br />ポイントを使い切ってください。</p>
+      )
+      setAlertMessage(message)
+      setAlertOpen(true)
+      return
+    }
+
+    // 新規作成時で名前が未設定の場合のアラート
+    if (isNew && !checkName(state)) {
+      const message = (
+        <p className="text-center">名前を設定してください。</p>
+      )
+      setAlertMessage(message)
+      setAlertOpen(true)
+      return
+    }
+
     // 確認用モデルの作成
     const { name, params, equips } = state
     const confirmModel: Model = {
@@ -192,6 +223,9 @@ function Edit() {
           <button className="w-48 h-12" onClick={back}>{isNew ? '作成' : '編集'}中断</button>
         </section>
       </div>
+      {alertOpen && (
+        <Modal message={alertMessage} onClose={() => setAlertOpen(false)} onContinue={null} />
+      )}
     </div>
   )
 }
