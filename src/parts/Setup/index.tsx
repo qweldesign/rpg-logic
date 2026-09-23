@@ -79,6 +79,9 @@ function Setup() {
     })
   }
 
+  // 4枠すべて埋まっているか
+  const isBattleReady = slots.every(id => id !== null)
+
   // 最初に1回だけ実行
   useEffect(() => {
     // セーブデータの内容読み込み
@@ -121,6 +124,7 @@ function Setup() {
             <List units={units} total={points}/>
             <div className="text-center">
               <button className="w-48 h-12" onClick={() => navigate('/setup/edit/')} >新規作成</button>
+              <button className="w-72 h-12" onClick={() => navigate('/battle/')} disabled={!isBattleReady}>出撃</button>
               <button className="w-48 h-12" onClick={confirmReset}>リセット</button>
             </div>
           </>

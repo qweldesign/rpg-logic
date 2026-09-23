@@ -18,6 +18,9 @@ function Entrance() {
       <li className='nav__item'>
         <Link to={setup}>編成</Link>
       </li>
+      <li className='nav__item'>
+        <Link to="/battle/">戦闘</Link>
+      </li>
     </ul>
   )
 }
