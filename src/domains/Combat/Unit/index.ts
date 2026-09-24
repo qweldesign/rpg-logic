@@ -52,7 +52,7 @@ export class CombatUnit {
     this.name = name
     this.side = combatId <= 4 ? 'player' : 'enemy'
     this.position = 'back'
-    this.health = new Health(maxHp)
+    this.health = new Health(this, maxHp)
     this.attack = new Attack(model)
     this.defense = new Defense(this, model)
     this.history = null
