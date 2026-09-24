@@ -2,7 +2,11 @@
 
 import { Equipments } from '../../Character'
 import { CombatHealth as Health } from './Health'
+import { CombatAttack as Attack } from './Attack'
+import { type DefenseType, type DefenseTarget, CombatDefense as Defense } from './Defense'
 import { type CombatLog as Log } from '../Log'
+
+export { type DefenseType, type DefenseTarget }
 
 const combatIds: number[] = [1, 2, 3, 4, 5, 6, 7, 8] as const
 
@@ -38,6 +42,8 @@ export class CombatUnit {
   public side: Side
   public position: Position
   public health: Health
+  public attack: Attack
+  public defense: Defense
   public history: Log | null // 直近の自ターンの行動ログ (Summary表示用)
 
   constructor(model: CombatUnitModel, combatId: CombatId) {
@@ -47,6 +53,8 @@ export class CombatUnit {
     this.side = combatId <= 4 ? 'player' : 'enemy'
     this.position = 'back'
     this.health = new Health(maxHp)
+    this.attack = new Attack(model)
+    this.defense = new Defense(this, model)
     this.history = null
   }
 }
