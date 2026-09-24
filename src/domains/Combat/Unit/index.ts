@@ -65,6 +65,7 @@ export class CombatUnit {
   // 各種状態を更新
   nextTurn() {
     this.health.nextTurn()
+    this.attack.nextTurn()
     this.defense.nextTurn()
   }
 
