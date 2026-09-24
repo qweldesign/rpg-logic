@@ -16,5 +16,5 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
-  base: '/demo/04/'
+  base: '/demo/05/'
 });
