@@ -16,6 +16,7 @@ export class CombatAction {
   public round: number
   public unlocked: boolean // コマンドパレットのロック状態 → Actions にて検知
   public promise: Promise<void>
+  public ready: Promise<void> // 開幕時の自動実行 (朦朧回復・立ち上がり) が完了したら解決
   private resolve!: () => void
   private readonly availabilityChecker: Availability
   private readonly effects: Effects
@@ -31,6 +32,16 @@ export class CombatAction {
     this.promise = new Promise(resolve => {
       this.resolve = resolve
     })
+
+    if (this.actor.health.stunned) {
+      // 朦朧状態の場合は「回復」を自動実行する
+      this.ready = this.execute({ key: 'recovery', options: {} })
+    } else if (!this.actor.health.stunned && this.actor.health.prone && !this.actor.health.standupPending) {
+      // 転倒状態の場合は「立ち上がり」を自動実行する
+      this.ready = this.execute({ key: 'standup', options: {} })
+    } else {
+      this.ready = Promise.resolve()
+    }
   }
 
   get actor() {
@@ -78,6 +89,14 @@ export class CombatAction {
         this.effects.move(action.options.position)
         break
 
+      case 'recovery':
+        results = this.effects.recovery()
+        break
+
+      case 'standup':
+        this.effects.standup()
+        break
+
       default: // case 'wait':
         this.effects.wait()
     }
@@ -86,8 +105,28 @@ export class CombatAction {
     const log = this.state.logs[0]
     log.receiveResults(action, results)
 
+    // 行動終了分岐
+    // 回復成功時はターンを終えず, 同じ actor の行動を続ける
+    // ただし転倒状態が残っている場合は, 続けて「立ち上がり」を実行してターンを終える
+    let nextTurn = true
+    const recoveryResult = results.find(result => result.type === 'recovery')
+    const recovered = action.key === 'recovery' && recoveryResult?.judge.success
+
+    if (recovered && this.actor.health.prone) {
+      await this.state.playLog()
+      await this.execute({ key: 'standup', options: {} })
+      return
+    }
+
+    if (recovered) {
+      this.unlocked = true
+      nextTurn = false
+    }
+
     // 行動終了
     await this.state.playLog() // ログの再生完了を待つ
-    this.resolve()
+    if (nextTurn) {
+      this.resolve()
+    }
   }
 }

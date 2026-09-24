@@ -8,7 +8,9 @@ export class CombatHealth {
   public maxHp: number
   private _injury: number // 負傷 (HPの減少)
   public stunned: boolean // 朦朧状態
-  public prone: boolean // 転倒
+  public standupTurn: boolean // 立ち上がったターン
+  public standupPending: boolean // 立ち上がり完了待ち (次のターンの終わりに完了)
+  private _prone: boolean // 転倒
   private _unconscious: boolean // 気絶
   private _dead: boolean // 死亡
 
@@ -17,9 +19,25 @@ export class CombatHealth {
     this.maxHp = maxHp
     this._injury = 0
     this.stunned = false
-    this.prone = false
+    this.standupTurn = false
+    this.standupPending = false
+    this._prone = false
     this._unconscious = false
     this._dead = false
+  }
+
+  // 次のターンに進む際に, 「立ち上がり」を完了する
+  nextTurn() {
+    // 前ターンに立ち上がりを実行していたなら, このターンの終わりに完了する
+    if (this.standupPending) {
+      this.prone = false
+      this.standupPending = false
+    }
+    // このターンに立ち上がりを実行したなら, 完了待ちにする (転倒状態は維持)
+    if (this.standupTurn) {
+      this.standupPending = true
+      this.standupTurn = false
+    }
   }
 
   // ダメージ効果 (判定不要の処理はここで解決する)
@@ -38,6 +56,12 @@ export class CombatHealth {
     }
 
     this._injury = newInjury
+  }
+
+  // 転倒時の処理
+  set prone(value: boolean) {
+    this._prone = value
+    if (value) this.standupPending = false // 再転倒したら立ち上がりをやり直す
   }
 
   // 気絶時の処理
@@ -74,6 +98,10 @@ export class CombatHealth {
     else if (ratio < 1 / 3) return 'stunned'
     else if (ratio < 2 / 3) return 'injured'
     else return 'normal'
+  }
+
+  get prone() {
+    return this._prone
   }
 
   get unconscious() {
