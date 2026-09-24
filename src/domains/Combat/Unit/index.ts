@@ -61,4 +61,9 @@ export class CombatUnit {
     this.mre = mre
     this.history = null
   }
+
+  // Summary 表示用ラベル取得
+  get label(): string {
+    return this.health.label
+  }
 }
