@@ -163,6 +163,17 @@ export class CombatLog {
                 messages.push(<>{`${target.name} は抵抗した!`}</>)
               }
               break
+            case 'heal':
+              if (result.judge.healedAmount > 0) messages.push(<>{`${target.name} の傷が, ${result.judge.healedAmount} 点回復した!`}</>)
+              if (result.judge.curedStun) messages.push(<>{`${target.name} は朦朧状態から回復した!`}</>)
+              break
+            case 'cleanse':
+              const cured: string[] = []
+              if (result.judge.curedBerserk) cured.push('狂戦士状態')
+              if (result.judge.curedDazed) cured.push('幻惑状態')
+              if (result.judge.curedFear) cured.push('恐慌状態')
+              messages.push(<>{`${target.name} の ${cured.join('・')} が解除された`}</>)
+              break
             default: // case 'trip': case 'knockedDown': case 'fatal':
               this.pushDmgResolutionMessage(messages, target, result)
           }
