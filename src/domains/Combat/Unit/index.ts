@@ -2,6 +2,8 @@
 
 import { Equipments } from '../../Character'
 import { CombatHealth as Health } from './Health'
+import { CombatStatusBuff as StatusBuff } from './StatusBuff'
+import { CombatStatusDebuff as StatusDebuff } from './StatusDebuff'
 import { CombatAttack as Attack } from './Attack'
 import { type DefenseType, type DefenseTarget, CombatDefense as Defense } from './Defense'
 import { type CombatLog as Log } from '../Log'
@@ -29,7 +31,9 @@ export type CombatUnitModel = {
   maxHp: number
   level: number
   dmgMod: number
+  dmgBuff: number
   ev: number
+  evBuff: number
   pre: number
   mre: number
   equipments: Equipments
@@ -42,6 +46,8 @@ export class CombatUnit {
   public side: Side
   public position: Position
   public health: Health
+  public buff: StatusBuff
+  public debuff: StatusDebuff
   public attack: Attack
   public defense: Defense
   public pre: number
@@ -55,6 +61,8 @@ export class CombatUnit {
     this.side = combatId <= 4 ? 'player' : 'enemy'
     this.position = 'back'
     this.health = new Health(this, maxHp)
+    this.buff = new StatusBuff(model.dmgBuff, model.evBuff)
+    this.debuff = new StatusDebuff()
     this.attack = new Attack(model)
     this.defense = new Defense(this, model)
     this.pre = pre
@@ -65,12 +73,14 @@ export class CombatUnit {
   // 各種状態を更新
   nextTurn() {
     this.health.nextTurn()
+    this.buff.nextTurn()
+    this.debuff.nextTurn()
     this.attack.nextTurn()
     this.defense.nextTurn()
   }
 
   // Summary 表示用ラベル取得
   get label(): string {
-    return this.health.label
+    return this.health.label || this.debuff.label || this.buff.label
   }
 }
