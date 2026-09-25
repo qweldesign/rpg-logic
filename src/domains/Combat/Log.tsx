@@ -90,7 +90,7 @@ export class CombatLog {
   // 結果ログ生成
   private createMessages(request: ActionRequest, results: ActionResult[]): ReactNode[] {
     const actor = this.actor.name
-    const messages = []
+    const messages: ReactNode[] = []
     switch (request.key) {
       case 'ready': {
         messages.push(<>{`${actor} は ${this.actor.attack.name} を構えた`}</>)
@@ -170,6 +170,17 @@ export class CombatLog {
             messages.push(<>{`${target.name} は ${SPELL_DEBUFF_LABELS[result.target]} 状態になった!`}</>)
           } else if (result.kind === 'debuff') {
             messages.push(<>{`${target.name} は抵抗した!`}</>)
+          }
+        })
+        results.forEach(result => {
+          switch (result.type) {
+            case 'debuffAll':
+              if (result.judge.applied) {
+                messages.push(<>{`${target.name} は ${SPELL_DEBUFF_LABELS[result.judge.statusTarget]} 状態になった!`}</>)
+              } else {
+                messages.push(<>{`${target.name} は抵抗した!`}</>)
+              }
+              break
           }
         })
         break
