@@ -6,6 +6,7 @@ import { CombatStatusBuff as StatusBuff } from './StatusBuff'
 import { CombatStatusDebuff as StatusDebuff } from './StatusDebuff'
 import { CombatAttack as Attack } from './Attack'
 import { type DefenseType, type DefenseTarget, CombatDefense as Defense } from './Defense'
+import { type Elements, CombatSpells as Spells } from '../Spells'
 import { type CombatLog as Log } from '../Log'
 
 export { type DefenseType, type DefenseTarget }
@@ -37,6 +38,7 @@ export type CombatUnitModel = {
   pre: number
   mre: number
   equipments: Equipments
+  elements: Elements
 }
 
 // 戦闘ユニットの管理を司るクラス
@@ -52,10 +54,11 @@ export class CombatUnit {
   public defense: Defense
   public pre: number
   public mre: number
+  public spells: Spells
   public history: Log | null // 直近の自ターンの行動ログ (Summary表示用)
 
   constructor(model: CombatUnitModel, combatId: CombatId) {
-    const { name, maxHp, pre, mre } = model
+    const { name, maxHp, pre, mre, elements } = model
     this.combatId = combatId
     this.name = name
     this.side = combatId <= 4 ? 'player' : 'enemy'
@@ -67,6 +70,7 @@ export class CombatUnit {
     this.defense = new Defense(this, model)
     this.pre = pre
     this.mre = mre
+    this.spells = new Spells(elements)
     this.history = null
   }
 
