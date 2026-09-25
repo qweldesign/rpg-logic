@@ -119,7 +119,7 @@ export class CombatLog {
               }
               break
 
-            default: // case 'defense': case 'dmg': case 'knockedDown': case 'fatal':
+            default: // case 'defense': case 'dmg': case 'trip': case 'knockedDown': case 'fatal':
               this.pushDmgResolutionMessage(messages, request.target, result)
               break
           }
@@ -158,6 +158,8 @@ export class CombatLog {
                 messages.push(<>{`${target.name} は抵抗した!`}</>)
               }
               break
+            default: // case 'trip':
+              this.pushDmgResolutionMessage(messages, target, result)
           }
         })
         break
@@ -221,6 +223,10 @@ export class CombatLog {
         if (result.judge.roll < 1) messages.push(<>{`ダメージは ${target.name} の鎧によって完全に止められた...`}</>)
         else if (!result.judge.critical) messages.push(<>{`${target.name} は ${result.judge.roll} 点のダメージを受けた!!`}</>)
         else messages.push(<>{`${target.name} は ${result.judge.roll} 点のダメージを受けた!!!`}</>)
+        break
+
+      case 'trip':
+        messages.push(<>{`${target.name} は 転倒した!!`}</>)
         break
 
       case 'knockedDown':
