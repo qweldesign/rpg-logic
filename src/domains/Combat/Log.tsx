@@ -195,8 +195,14 @@ export class CombatLog {
         messages.push(<>{`${actor} は 転倒状態から立ち上がろうとしている`}</>)
         break
       }
-      default: { // case 'wait': (恐慌状態のみ)
-        messages.push(<>{`${actor} は 恐慌状態で立ち尽くしている...`}</>)
+      default: { // case 'wait': (狂戦士・恐慌状態のみ)
+        if (request.options.status === 'berserk') {
+          messages.push(<>{`${actor} は 何もできない...`}</>)
+        } else if (request.options.status === 'fear') {
+          messages.push(<>{`${actor} は 恐慌状態で立ち尽くしている...`}</>)
+        } else {
+           messages.push(<>{`${actor} は 待機している`}</>)
+        }
         break
       }
     }
