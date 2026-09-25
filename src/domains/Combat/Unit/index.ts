@@ -8,6 +8,7 @@ import { DMG_RATE, CombatAttack as Attack } from './Attack'
 import { type DefenseType, type DefenseTarget, CombatDefense as Defense } from './Defense'
 import { type Elements, CombatSpells as Spells } from '../Spells'
 import { type CombatLog as Log } from '../Log'
+import { type TacticTypeKey } from '../AI'
 
 export { DMG_RATE, type DefenseType, type DefenseTarget }
 
@@ -39,6 +40,7 @@ export type CombatUnitModel = {
   mre: number
   equipments: Equipments
   elements: Elements
+  tacticType?: TacticTypeKey
 }
 
 // 戦闘ユニットの管理を司るクラス
@@ -56,9 +58,10 @@ export class CombatUnit {
   public mre: number
   public spells: Spells
   public history: Log | null // 直近の自ターンの行動ログ (Summary表示用)
+  public tacticType: TacticTypeKey | null // 自動行動タイプ
 
   constructor(model: CombatUnitModel, combatId: CombatId) {
-    const { name, maxHp, pre, mre, elements } = model
+    const { name, maxHp, pre, mre, elements, tacticType } = model
     this.combatId = combatId
     this.name = name
     this.side = combatId <= 4 ? 'player' : 'enemy'
@@ -72,6 +75,7 @@ export class CombatUnit {
     this.mre = mre
     this.spells = new Spells(elements)
     this.history = null
+    this.tacticType = tacticType ?? null
   }
 
   // 各種状態を更新
