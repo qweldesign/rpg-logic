@@ -105,6 +105,11 @@ export type DebuffAllResult = Score & {
   applied: boolean
 }
 
+// kind: flash (target を直接持つ)
+export type FlashResult = Judge & {
+  target: Unit
+}
+
 // 行動実行後の判定結果の定義
 export type ActionResult =
   | { type: 'attack', judge: AttackResult }
@@ -114,6 +119,7 @@ export type ActionResult =
   | { type: 'spell', judge: SpellResult }
   | { type: 'debuffAll', judge: DebuffAllResult }
   | { type: 'trip', judge: Judge }
+  | { type: 'flash', judge: FlashResult }
   | { type: 'recovery', judge: Judge }
   | { type: 'knockedDown', judge: Judge }
   | { type: 'dead', judge: Judge }

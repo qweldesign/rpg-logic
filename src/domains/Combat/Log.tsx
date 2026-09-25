@@ -234,6 +234,11 @@ export class CombatLog {
         messages.push(<>{`${target.name} は 転倒した!!`}</>)
         break
 
+      case 'flash':
+        messages.push(<>{`${target.name} は 閃光に目がくらんだ!`}</>)
+        messages.push(<>{`次ターンの終わりまで 命中-2, 回避-1の修正を課される!`}</>)
+        break
+
       case 'knockedDown':
         if (result.judge.success) messages.push(<>{`${target.name} は 朦朧状態に陥った!`}</>)
         else messages.push(<>{`${target.name} は 転倒した!!`}</>)
