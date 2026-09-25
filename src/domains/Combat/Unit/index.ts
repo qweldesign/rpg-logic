@@ -66,7 +66,7 @@ export class CombatUnit {
     this.health = new Health(this, maxHp)
     this.buff = new StatusBuff(model.dmgBuff, model.evBuff)
     this.debuff = new StatusDebuff()
-    this.attack = new Attack(model)
+    this.attack = new Attack(this, model)
     this.defense = new Defense(this, model)
     this.pre = pre
     this.mre = mre
