@@ -270,6 +270,10 @@ export class CombatLog {
         if (result.judge.success) messages.push(<>{`${target.name} は 気絶した...`}</>)
         else messages.push(<>{`${target.name} は 死亡した...`}</>)
         break
+
+      case 'castCanceled':
+        messages.push(<>{`${target.name} の 精神集中が途切れた!!`}</>)
+        break
     }
   }
   
