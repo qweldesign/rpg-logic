@@ -174,6 +174,9 @@ export class CombatLog {
               if (result.judge.curedFear) cured.push('恐慌状態')
               messages.push(<>{`${target.name} の ${cured.join('・')} が解除された`}</>)
               break
+            case 'barrier':
+              messages.push(<>{`魔法障壁に包まれ、魔法を発動させにくくなった!`}</>)
+              break
             default: // case 'trip': case 'knockedDown': case 'fatal':
               this.pushDmgResolutionMessage(messages, target, result)
           }
