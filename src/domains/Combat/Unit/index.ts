@@ -4,12 +4,12 @@ import { Equipments } from '../../Character'
 import { CombatHealth as Health } from './Health'
 import { CombatStatusBuff as StatusBuff } from './StatusBuff'
 import { CombatStatusDebuff as StatusDebuff } from './StatusDebuff'
-import { CombatAttack as Attack } from './Attack'
+import { DMG_RATE, CombatAttack as Attack } from './Attack'
 import { type DefenseType, type DefenseTarget, CombatDefense as Defense } from './Defense'
 import { type Elements, CombatSpells as Spells } from '../Spells'
 import { type CombatLog as Log } from '../Log'
 
-export { type DefenseType, type DefenseTarget }
+export { DMG_RATE, type DefenseType, type DefenseTarget }
 
 const combatIds: number[] = [1, 2, 3, 4, 5, 6, 7, 8] as const
 

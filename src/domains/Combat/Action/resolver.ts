@@ -65,6 +65,15 @@ export function judgeSpell(actor: Unit, element: SpellElement, spellId: number, 
   return { spell, ...judge(actor.spells.getSpellTarget(element, spellId, formation, target)) }
 }
 
+// 魔法によるダメージの判定結果を返す
+export function rollSpellDmg(actor: Unit, count: number, dmgType: 0 | 1 | 2, target: Unit): DmgResult {
+  const { dr, isChain } = target.defense
+  const mod = actor.spells.getDmgMod(dmgType, dr, isChain)
+  const rate = actor.spells.getDmgRate(dmgType)
+  const roll = Math.max(0, Math.floor(getRoll(count, mod) * rate))
+  return { roll, success: roll > 0, critical: roll >= 10 }
+}
+
 // 生命力判定の結果を返す (転倒判定・回復判定・死亡判定)
 export function judgeEndurance(target: Unit): Judge {
   return judge(target.pre)
