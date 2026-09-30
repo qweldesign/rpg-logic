@@ -114,7 +114,7 @@ export class Combat {
   private async waitForCommand(): Promise<void> {
     await this.action!.promise.then(() => {
       this.actor.nextTurn()
-      this.debug()
+      //this.debug()
       this.nextTurn()
     })
   }

@@ -10,6 +10,7 @@
 
 - デモ版: [RPG.LOGIC デモ版](https://rpg-logic.dev/demo/)
 - 完全版: [RPG.LOGIC 完全版](https://rpg-logic.dev)
+- 解説書: [RPG.LOGIC ― ドメインモデルから作る複雑なRPG戦闘ロジック (zenn.dev)](https://zenn.dev/qweldesign/books/rpg-logic-book)
 
 ---
 
