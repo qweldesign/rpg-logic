@@ -28,6 +28,7 @@ function Sample() {
         <option value="12">{'12CP'}</option>
         <option value="16">{'16CP'}</option>
         <option value="24">{'24CP'}</option>
+        <option value="40">{'40CP'}</option>
       </select>
       {!sample
         ? <List units={samples} total={total} />

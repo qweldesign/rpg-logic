@@ -1,14 +1,21 @@
 // src/domains/Character/Parameters.ts
 
 // CP
-const POINT_STEP = [0, 1, 2, 4, 8] as const
+const POINT_STEP = [0, 0.5, 1, 2, 4, 8, 16] as const
 
 export type Point = typeof POINT_STEP[number]
+
+// 基準値修正
+const BASE_MOD = -2
 
 // パラメータのキー
 export const PARAMETER_KEYS = [
   '筋力', '敏捷力', '知力', '生命力', // 能力値
-  '武術', '怪力', '剣術', '運動', '青の魔法', '赤の魔法', '緑の魔法', '鍛錬' // 技能
+  '武術', '格闘', '怪力',
+  '剣術', '弓術', '柔術', '探索', '運動', '細工', '早業', '隠密', '軽業', '演奏', '舞踏', '技術',
+  '青の魔法', '赤の魔法', '緑の魔法', //'木行術', '火行術', '土行術', '金行術', '水行術',
+  '礼法', '交渉', '尋問', '演技', '鑑定', '治癒', '歴史', '言語', '知識', '修養',
+  '鍛錬', '歌唱'
 ] as const
 
 export type ParameterKey = typeof PARAMETER_KEYS[number]
@@ -29,13 +36,40 @@ export const PARAMETERS: Record<ParameterKey, { base: ParameterKey | null }> = {
   '知力': { base: null },
   '生命力': { base: null },
   '武術': { base: '筋力' },
+  '格闘': { base: '筋力' },
   '怪力': { base: '筋力' },
   '剣術': { base: '敏捷力' },
+  '弓術': { base: '敏捷力' },
+  '柔術': { base: '敏捷力' },
+  '探索': { base: '敏捷力' },
   '運動': { base: '敏捷力' },
+  '細工': { base: '敏捷力' },
+  '早業': { base: '敏捷力' },
+  '隠密': { base: '敏捷力' },
+  '軽業': { base: '敏捷力' },
+  '演奏': { base: '敏捷力' },
+  '舞踏': { base: '敏捷力' },
+  '技術': { base: '敏捷力' },
   '青の魔法': { base: '知力' },
   '赤の魔法': { base: '知力' },
   '緑の魔法': { base: '知力' },
-  '鍛錬': { base: '生命力' }
+  //'木行術': { base: '知力' },
+  //'火行術': { base: '知力' },
+  //'土行術': { base: '知力' },
+  //'金行術': { base: '知力' },
+  //'水行術': { base: '知力' },
+  '礼法': { base: '知力' },
+  '交渉': { base: '知力' },
+  '尋問': { base: '知力' },
+  '演技': { base: '知力' },
+  '鑑定': { base: '知力' },
+  '治癒': { base: '知力' },
+  '歴史': { base: '知力' },
+  '言語': { base: '知力' },
+  '知識': { base: '知力' },
+  '修養': { base: '知力' },
+  '鍛錬': { base: '生命力' },
+  '歌唱': { base: '生命力' }
 } as const
 
 // パラメータ (能力値・技能値) の管理を司るクラス
@@ -104,7 +138,7 @@ export class Parameters {
     const base = PARAMETERS[name].base
     const baseValue = base !== null ? this.getLevel(base) : 10
     const point = this.get(name)
-    return baseValue + POINT_STEP.indexOf(point)
+    return baseValue + BASE_MOD + POINT_STEP.indexOf(point)
   }
 
   // point 総計を算出
@@ -116,7 +150,7 @@ export class Parameters {
 
   // 最大Hpを取得
   get maxHp() {
-    return this.getLevel('鍛錬') * 2 - 10
+    return this.getLevel('鍛錬') * 2
   }
 
   // ダメージ修正を取得

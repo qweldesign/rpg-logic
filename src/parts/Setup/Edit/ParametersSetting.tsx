@@ -15,9 +15,9 @@ function ParametersSetting(
   const parameterGroups = [
     { label: '能力値', filter: (base: ParameterKey | null) => base === null },
     { label: '筋力を基準とする技能', filter: (base: ParameterKey | null) => base === '筋力' },
+    { label: '生命力を基準とする技能', filter: (base: ParameterKey | null) => base === '生命力' },
     { label: '敏捷力を基準とする技能', filter: (base: ParameterKey | null) => base === '敏捷力' },
-    { label: '知力を基準とする技能', filter: (base: ParameterKey | null) => base === '知力' },
-    { label: '生命力を基準とする技能', filter: (base: ParameterKey | null) => base === '生命力' }
+    { label: '知力を基準とする技能', filter: (base: ParameterKey | null) => base === '知力' }
   ]
 
   // 増減ボタンの状態を取得 (true: 有効 / false: 無効)
@@ -58,7 +58,7 @@ function ParametersSetting(
         </>
       )}
       <h5>残りCP: <span className={calcPoints(state, false) > 0 ? 'text-amber-400 font-bold' : 'font-bold'}>{calcPoints(state, false)} 点</span></h5>
-      <div className="flex flex-nowrap lg:flex-wrap flex-col items-center gap-6 lg:h-[32em]">
+      <div className="flex flex-nowrap lg:flex-wrap flex-col items-center gap-6 lg:h-[60em]">
         {parameterGroups.map((group, i) => (
           <div className="w-64" key={i}>
             <h6>{group.label}</h6>
